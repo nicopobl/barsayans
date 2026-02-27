@@ -9,9 +9,18 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.999.0",
+    "@aws-sdk/client-s3": "^3.999.0",
+    "@aws-sdk/s3-request-presigner": "^3.999.0",
+    "@aws-sdk/util-dynamodb": "^3.996.1",
+    "autoprefixer": "^10.4.27",
+    "lucide-react": "^0.575.0",
     "next": "16.1.6",
+    "next-auth": "^4.24.13",
+    "postcss": "^8.5.6",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "stripe": "^20.4.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -20,7 +29,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
-    "tailwindcss": "^4",
+    "tailwindcss": "^4.2.1",
     "typescript": "^5"
   }
 }
