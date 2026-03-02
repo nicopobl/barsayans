@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { CreateCheckoutSessionUseCase } from '@/modules/subscriptions/application/create-checkout-session.use-case';
 import { MercadoPagoServiceImpl } from '@/modules/subscriptions/infrastructure/mercadopago.service';
-import { MockCourseRepository } from '@/modules/courses/infrastructure/mock-course.repository';
+import { FirestoreCourseRepository } from '@/modules/courses/infrastructure/firestore-course.repository';
 import { getCurrentUserId } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     // Inicializar dependencias con Mercado Pago
     const paymentService = new MercadoPagoServiceImpl();
-    const courseRepository = new MockCourseRepository();
+    const courseRepository = new FirestoreCourseRepository();
     const createCheckoutSessionUseCase = new CreateCheckoutSessionUseCase(
       paymentService,
       courseRepository

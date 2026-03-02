@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { VideoPlayer } from '@/modules/courses/presentation/components/video-player';
 import { GetCourseByIdUseCase } from '@/modules/courses/application/get-course-by-id.use-case';
 import { CheckCourseAccessUseCase } from '@/modules/courses/application/check-course-access.use-case';
-import { MockCourseRepository } from '@/modules/courses/infrastructure/mock-course.repository';
+import { FirestoreCourseRepository } from '@/modules/courses/infrastructure/firestore-course.repository';
 import { DynamoDBAccessService } from '@/modules/courses/infrastructure/dynamodb-access.service';
 import { FirestoreSubscriptionRepository } from '@/modules/subscriptions/infrastructure/firestore-subscription.repository';
 import { getCurrentUserId } from '@/lib/auth';
@@ -17,7 +17,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
   const { id } = await params;
 
   // Inicializar dependencias
-  const courseRepository = new MockCourseRepository();
+  const courseRepository = new FirestoreCourseRepository();
   const subscriptionRepository = new FirestoreSubscriptionRepository();
   const accessService = new DynamoDBAccessService(subscriptionRepository);
   

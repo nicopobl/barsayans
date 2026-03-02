@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import { CreateCourseUseCase } from '@/modules/courses/application/create-course.use-case';
 import { UpdateCourseUseCase } from '@/modules/courses/application/update-course.use-case';
-import { DynamoDBCourseRepository } from '@/modules/courses/infrastructure/dynamodb-course.repository';
+import { FirestoreCourseRepository } from '@/modules/courses/infrastructure/firestore-course.repository';
 
 // Verificar que el usuario es admin
 async function verifyAdmin() {
@@ -24,7 +24,7 @@ export async function GET() {
       );
     }
 
-    const courseRepository = new DynamoDBCourseRepository();
+    const courseRepository = new FirestoreCourseRepository();
     const courses = await courseRepository.getAll();
 
     return NextResponse.json({ courses });
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const courseRepository = new DynamoDBCourseRepository();
+    const courseRepository = new FirestoreCourseRepository();
     const createCourseUseCase = new CreateCourseUseCase(courseRepository);
 
     const course = await createCourseUseCase.execute({
@@ -98,7 +98,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const courseRepository = new DynamoDBCourseRepository();
+    const courseRepository = new FirestoreCourseRepository();
     const updateCourseUseCase = new UpdateCourseUseCase(courseRepository);
 
     await updateCourseUseCase.execute({

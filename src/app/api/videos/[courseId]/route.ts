@@ -4,7 +4,7 @@ import { GetVideoStreamUrlUseCase } from '@/modules/courses/application/get-vide
 import { GCSStorageService } from '@/modules/courses/infrastructure/gcs-storage.service';
 import { DynamoDBAccessService } from '@/modules/courses/infrastructure/dynamodb-access.service';
 import { FirestoreSubscriptionRepository } from '@/modules/subscriptions/infrastructure/firestore-subscription.repository';
-import { MockCourseRepository } from '@/modules/courses/infrastructure/mock-course.repository';
+import { FirestoreCourseRepository } from '@/modules/courses/infrastructure/firestore-course.repository';
 
 export async function GET(
   request: NextRequest,
@@ -23,7 +23,7 @@ export async function GET(
     }
 
     // Obtener el curso para obtener el videoKey
-    const courseRepository = new MockCourseRepository();
+    const courseRepository = new FirestoreCourseRepository();
     const course = await courseRepository.getById(courseId);
     
     if (!course) {

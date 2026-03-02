@@ -1,9 +1,10 @@
-import { mockCourseRepository } from "@/modules/courses/infrastructure/mock-course.repository";
+import { FirestoreCourseRepository } from "@/modules/courses/infrastructure/firestore-course.repository";
 import { Dumbbell, Zap, Target } from "lucide-react";
 import Link from "next/link";
 
 export default async function Home() {
-  const courses = await mockCourseRepository.getAll();
+  const courseRepository = new FirestoreCourseRepository();
+  const courses = await courseRepository.getAll();
 
   return (
     <main className="min-h-screen bg-black text-white antialiased">
