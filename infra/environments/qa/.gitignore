@@ -1,0 +1,13 @@
+# Terraform state files
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Service account credentials
+gcp-service-account.json
+*.json
+
+# Override files with sensitive data
+terraform.tfvars
+*.tfvars.backup

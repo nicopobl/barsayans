@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
-import { S3PresignedPostService } from '@/modules/courses/infrastructure/s3-presigned-post.service';
+import { GCSPresignedPostService } from '@/modules/courses/infrastructure/gcs-presigned-post.service';
 
 // Verificar que el usuario es admin
 async function verifyAdmin() {
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const presignedPostService = new S3PresignedPostService();
+    const presignedPostService = new GCSPresignedPostService();
     const videoKey = presignedPostService.generateVideoKey(courseId, filename);
     const presignedData = await presignedPostService.createPresignedPost(
       videoKey,

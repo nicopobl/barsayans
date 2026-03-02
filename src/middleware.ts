@@ -52,5 +52,9 @@ export const config = {
     '/courses/:path*',
     '/checkout/:path*',
     '/admin/:path*',
+    // Nota: /api/auth está explícitamente excluido del matcher
+    // para permitir que NextAuth maneje las rutas de autenticación sin interferencia
+    // Nota: /api/webhooks está explícitamente excluido del matcher
+    // para permitir que los webhooks de Mercado Pago (incluyendo desde ngrok) funcionen sin autenticación
   ],
 };

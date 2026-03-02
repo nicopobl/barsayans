@@ -37,7 +37,7 @@ export default function CheckoutPage() {
         const { url } = await response.json();
         
         if (url) {
-          // Redirigir a Stripe Checkout
+          // Redirigir a Mercado Pago Checkout
           window.location.href = url;
         } else {
           throw new Error('No se recibió URL de checkout');
@@ -76,7 +76,7 @@ export default function CheckoutPage() {
       <div className="text-center px-6">
         <Loader2 className="w-12 h-12 text-yellow-500 animate-spin mx-auto mb-4" />
         <h1 className="text-2xl font-black uppercase italic mb-2">
-          Redirigiendo a Stripe...
+          Redirigiendo a Mercado Pago...
         </h1>
         <p className="text-zinc-400 text-sm">
           Por favor espera mientras procesamos tu pago

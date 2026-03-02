@@ -2,23 +2,51 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+First, install dependencies:
+
+```bash
+npm install
+```
+
+Then, run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Configuración de Webhooks con ngrok
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Para desarrollo local, los webhooks de Mercado Pago requieren un túnel público. Usa ngrok:
+
+1. **Instala ngrok:**
+   ```bash
+   # macOS
+   brew install ngrok
+   
+   # O descarga desde https://ngrok.com/download
+   ```
+
+2. **Inicia el túnel:**
+   ```bash
+   npm run tunnel
+   ```
+
+3. **Copia la URL de ngrok** y actualiza `.env.local`:
+   ```env
+   NEXT_PUBLIC_APP_URL=https://tu-url-ngrok.ngrok-free.app
+   ```
+
+4. **Configura el webhook en Mercado Pago:**
+   - URL: `https://tu-url-ngrok.ngrok-free.app/api/webhooks/mercadopago`
+
+5. **Verifica la configuración:**
+   ```bash
+   npm run check-tunnel
+   ```
+
+Para más detalles, ver [scripts/README.md](./scripts/README.md).
 
 ## Learn More
 

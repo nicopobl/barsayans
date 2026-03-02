@@ -39,47 +39,51 @@ export function VideoPlayer({ videoUrl, hasAccess, courseId, coursePrice }: Vide
 
   if (!hasAccess) {
     return (
-      <div className="relative w-full aspect-video bg-zinc-900 border border-zinc-800 rounded-sm overflow-hidden">
+      <div className="relative w-full aspect-video bg-black border border-zinc-900 rounded-sm overflow-hidden">
         {/* Blurred/Blocked Video Preview */}
-        <div className="absolute inset-0 bg-zinc-900 flex items-center justify-center">
-          <div className="absolute inset-0 opacity-20">
+        <div className="absolute inset-0 bg-black flex items-center justify-center">
+          <div className="absolute inset-0 opacity-30 grayscale contrast-125">
             {videoUrl ? (
               <iframe
                 src={videoUrl}
-                className="w-full h-full pointer-events-none blur-sm"
+                className="w-full h-full pointer-events-none blur-md scale-110"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center">
-                <Play className="w-24 h-24 text-zinc-700" />
+              <div className="w-full h-full bg-gradient-to-br from-zinc-900 to-black flex items-center justify-center">
+                <Play className="w-24 h-24 text-zinc-800" />
               </div>
             )}
           </div>
+          {/* Dark to Yellow Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/70 to-brand-accent/20" />
         </div>
 
-        {/* Overlay de Bloqueo */}
-        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 border-4 border-yellow-500/50">
-          <div className="text-center px-6">
-            <div className="mb-6 flex justify-center">
-              <div className="bg-yellow-500/20 border-2 border-yellow-500 p-6 rounded-sm">
-                <Lock className="w-12 h-12 text-yellow-500" />
+        {/* Overlay de Bloqueo Premium */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-10 border-2 border-brand-accent/30">
+          <div className="text-center px-8 max-w-2xl">
+            <div className="mb-8 flex justify-center">
+              <div className="bg-brand-accent/10 border-2 border-brand-accent p-8 rounded-sm backdrop-blur-sm">
+                <Lock className="w-16 h-16 text-brand-accent" />
               </div>
             </div>
             
-            <h3 className="text-2xl md:text-3xl font-black uppercase italic mb-4 text-white">
-              Contenido Bloqueado
+            <h3 className="text-4xl md:text-5xl font-black uppercase italic mb-6 text-white tracking-tighter leading-tight">
+              CONTENIDO EXCLUSIVO BARSAYANS
             </h3>
             
-            <p className="text-zinc-400 mb-8 max-w-md text-sm uppercase tracking-wider">
-              Adquiere este curso para desbloquear todo el contenido premium
+            <p className="text-zinc-300 mb-10 text-base uppercase tracking-wider leading-relaxed">
+              Este video es solo para miembros premium.<br />
+              Adquiere el curso para desbloquearlo.
             </p>
 
             <Link
               href={`/checkout?course=${courseId}`}
-              className="inline-block bg-yellow-500 text-black px-8 py-4 text-sm font-black uppercase tracking-tighter hover:bg-yellow-400 transition-colors border-2 border-transparent hover:border-white"
+              className="inline-block bg-brand-accent text-black px-10 py-5 text-sm font-black uppercase tracking-tighter hover:bg-brand-accent/90 transition-all duration-300 border-2 border-brand-accent hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] relative overflow-hidden group"
             >
-              Comprar Ahora - ${coursePrice.toLocaleString('es-CL')}
+              <span className="relative z-10">ADQUIRIR ACCESO</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
             </Link>
           </div>
         </div>
@@ -89,7 +93,7 @@ export function VideoPlayer({ videoUrl, hasAccess, courseId, coursePrice }: Vide
 
   // Usuario tiene acceso - mostrar video completo
   return (
-    <div className="w-full aspect-video bg-zinc-900 border border-yellow-500 rounded-sm overflow-hidden">
+    <div className="w-full aspect-video bg-black border-2 border-brand-accent rounded-sm overflow-hidden shadow-[0_0_30px_rgba(234,179,8,0.2)]">
       {loading ? (
         <div className="w-full h-full bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center">
           <div className="text-center">

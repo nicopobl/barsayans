@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUserId } from '@/lib/auth';
 import { GetVideoStreamUrlUseCase } from '@/modules/courses/application/get-video-stream-url.use-case';
-import { S3StorageService } from '@/modules/courses/infrastructure/s3-storage.service';
+import { GCSStorageService } from '@/modules/courses/infrastructure/gcs-storage.service';
 import { DynamoDBAccessService } from '@/modules/courses/infrastructure/dynamodb-access.service';
-import { DynamoDBSubscriptionRepository } from '@/modules/subscriptions/infrastructure/dynamodb-subscription.repository';
+import { FirestoreSubscriptionRepository } from '@/modules/subscriptions/infrastructure/firestore-subscription.repository';
 import { MockCourseRepository } from '@/modules/courses/infrastructure/mock-course.repository';
 
 export async function GET(
@@ -37,8 +37,8 @@ export async function GET(
     const videoKey = course.videoKey || `courses/${courseId}/video.mp4`;
 
     // Inicializar servicios
-    const storageService = new S3StorageService();
-    const subscriptionRepository = new DynamoDBSubscriptionRepository();
+    const storageService = new GCSStorageService();
+    const subscriptionRepository = new FirestoreSubscriptionRepository();
     const accessService = new DynamoDBAccessService(subscriptionRepository);
     
     // Inicializar caso de uso

@@ -12,7 +12,7 @@ const config: Config = {
       colors: {
         brand: {
           background: "#000000",
-          accent: "#FBDE1B", // Un amarillo más intenso
+          accent: "#EAB308", // Amarillo Barsayans #EAB308
           zinc: "#18181B",
         }
       }

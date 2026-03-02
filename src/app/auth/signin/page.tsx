@@ -21,7 +21,7 @@ export default function SignInPage() {
 
         <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-sm">
           <button
-            onClick={() => signIn('cognito', { callbackUrl: '/' })}
+            onClick={() => signIn('google', { callbackUrl: '/' })}
             className="w-full bg-yellow-500 text-black px-6 py-4 text-sm font-black uppercase tracking-tighter hover:bg-yellow-400 transition-colors border-2 border-transparent hover:border-white"
           >
             Iniciar Sesión con Google

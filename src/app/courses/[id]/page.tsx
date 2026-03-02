@@ -6,7 +6,7 @@ import { GetCourseByIdUseCase } from '@/modules/courses/application/get-course-b
 import { CheckCourseAccessUseCase } from '@/modules/courses/application/check-course-access.use-case';
 import { MockCourseRepository } from '@/modules/courses/infrastructure/mock-course.repository';
 import { DynamoDBAccessService } from '@/modules/courses/infrastructure/dynamodb-access.service';
-import { DynamoDBSubscriptionRepository } from '@/modules/subscriptions/infrastructure/dynamodb-subscription.repository';
+import { FirestoreSubscriptionRepository } from '@/modules/subscriptions/infrastructure/firestore-subscription.repository';
 import { getCurrentUserId } from '@/lib/auth';
 
 interface CourseDetailPageProps {
@@ -18,7 +18,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
 
   // Inicializar dependencias
   const courseRepository = new MockCourseRepository();
-  const subscriptionRepository = new DynamoDBSubscriptionRepository();
+  const subscriptionRepository = new FirestoreSubscriptionRepository();
   const accessService = new DynamoDBAccessService(subscriptionRepository);
   
   // Inicializar casos de uso
@@ -41,11 +41,11 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
   return (
     <main className="min-h-screen bg-[#050505] text-white">
       {/* Header con navegación */}
-      <header className="border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+      <header className="border-b border-zinc-900 bg-black/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-8 py-6">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-zinc-400 hover:text-yellow-500 transition-colors uppercase text-sm font-bold tracking-tighter"
+            className="inline-flex items-center gap-2 text-zinc-400 hover:text-brand-accent transition-colors uppercase text-sm font-black tracking-tighter"
           >
             <ArrowLeft className="w-4 h-4" />
             Volver a Cursos
@@ -53,7 +53,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-12">
+      <div className="max-w-7xl mx-auto px-8 py-16">
         {/* Video Player Section */}
         <section className="mb-12">
           <VideoPlayer
@@ -65,28 +65,28 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
         </section>
 
         {/* Course Info Section */}
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-12">
             {/* Title & Badge */}
             <div>
-              <div className="flex items-center gap-3 mb-4">
-                <span className="bg-black/80 px-3 py-1 text-xs font-bold uppercase tracking-tighter border border-yellow-500 text-yellow-500">
+              <div className="flex items-center gap-4 mb-6">
+                <span className="bg-black px-4 py-2 text-xs font-black uppercase tracking-tighter border border-brand-accent text-brand-accent">
                   {course.level}
                 </span>
               </div>
-              <h1 className="text-4xl md:text-5xl font-black uppercase italic mb-4">
+              <h1 className="text-5xl md:text-6xl font-black uppercase italic mb-6 tracking-tighter leading-tight">
                 {course.title}
               </h1>
-              <p className="text-zinc-400 text-lg leading-relaxed">
+              <p className="text-zinc-300 text-xl leading-relaxed">
                 {course.description}
               </p>
             </div>
 
             {/* Course Details */}
-            <div className="border-t border-zinc-800 pt-8">
-              <h2 className="text-2xl font-bold uppercase italic mb-6">Sobre este curso</h2>
-              <div className="space-y-4 text-zinc-300">
+            <div className="border-t border-zinc-900 pt-12">
+              <h2 className="text-3xl font-black uppercase italic mb-8 tracking-tighter">Sobre este curso</h2>
+              <div className="space-y-6 text-zinc-300 text-lg leading-relaxed">
                 <p>
                   Este curso está diseñado para llevarte desde los fundamentos hasta la maestría en calistenia.
                   Cada lección está estructurada para maximizar tu progreso y minimizar el riesgo de lesiones.
@@ -99,25 +99,25 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
             </div>
 
             {/* Curriculum Placeholder */}
-            <div className="border-t border-zinc-800 pt-8">
-              <h2 className="text-2xl font-bold uppercase italic mb-6">Contenido del Curso</h2>
-              <div className="space-y-3">
+            <div className="border-t border-zinc-900 pt-12">
+              <h2 className="text-3xl font-black uppercase italic mb-8 tracking-tighter">Contenido del Curso</h2>
+              <div className="space-y-4">
                 {[1, 2, 3, 4, 5].map((lesson) => (
                   <div
                     key={lesson}
-                    className="bg-zinc-900 border border-zinc-800 p-4 flex items-center justify-between hover:border-yellow-500/50 transition-colors"
+                    className="bg-zinc-950 border border-zinc-900 p-6 flex items-center justify-between hover:border-brand-accent/50 hover:shadow-[0_0_15px_rgba(234,179,8,0.05)] transition-all duration-300"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-zinc-800 border border-zinc-700 flex items-center justify-center text-sm font-bold">
+                    <div className="flex items-center gap-6">
+                      <div className="w-12 h-12 bg-black border border-zinc-800 flex items-center justify-center text-sm font-black">
                         {lesson}
                       </div>
                       <div>
-                        <h3 className="font-bold uppercase text-sm">Lección {lesson}</h3>
+                        <h3 className="font-black uppercase text-sm tracking-tighter">Lección {lesson}</h3>
                         <p className="text-zinc-500 text-xs">Contenido premium</p>
                       </div>
                     </div>
                     {!hasAccess && (
-                      <Lock className="w-5 h-5 text-zinc-700" />
+                      <Lock className="w-5 h-5 text-zinc-800" />
                     )}
                   </div>
                 ))}
@@ -127,7 +127,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
 
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-zinc-900 border border-zinc-800 p-6 sticky top-24">
+            <div className="bg-zinc-950 border border-zinc-900 p-8 sticky top-24">
               <div className="space-y-6">
                 {/* Price */}
                 <div>
@@ -143,36 +143,36 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                 {!hasAccess ? (
                   <Link
                     href={`/checkout?course=${course.id}`}
-                    className="block w-full bg-yellow-500 text-black px-6 py-4 text-center text-sm font-black uppercase tracking-tighter hover:bg-yellow-400 transition-colors border-2 border-transparent hover:border-white"
+                    className="block w-full bg-brand-accent text-black px-8 py-5 text-center text-sm font-black uppercase tracking-tighter hover:bg-brand-accent/90 transition-all duration-300 border-2 border-brand-accent hover:shadow-[0_0_20px_rgba(234,179,8,0.3)]"
                   >
                     Comprar Ahora
                   </Link>
                 ) : (
-                  <div className="block w-full bg-green-500/20 border-2 border-green-500 text-green-500 px-6 py-4 text-center text-sm font-black uppercase tracking-tighter">
+                  <div className="block w-full bg-green-500/10 border-2 border-green-500 text-green-500 px-8 py-5 text-center text-sm font-black uppercase tracking-tighter">
                     Acceso Activo
                   </div>
                 )}
 
                 {/* Course Stats */}
-                <div className="border-t border-zinc-800 pt-6 space-y-4">
-                  <div className="flex items-center gap-3">
-                    <Target className="w-5 h-5 text-yellow-500" />
+                <div className="border-t border-zinc-900 pt-8 space-y-6">
+                  <div className="flex items-center gap-4">
+                    <Target className="w-5 h-5 text-brand-accent" />
                     <div>
-                      <div className="font-bold text-sm uppercase">Nivel {course.level}</div>
+                      <div className="font-black text-sm uppercase tracking-tighter">Nivel {course.level}</div>
                       <div className="text-zinc-500 text-xs">Dificultad</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Clock className="w-5 h-5 text-yellow-500" />
+                  <div className="flex items-center gap-4">
+                    <Clock className="w-5 h-5 text-brand-accent" />
                     <div>
-                      <div className="font-bold text-sm uppercase">5+ Horas</div>
+                      <div className="font-black text-sm uppercase tracking-tighter">5+ Horas</div>
                       <div className="text-zinc-500 text-xs">Contenido</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Users className="w-5 h-5 text-yellow-500" />
+                  <div className="flex items-center gap-4">
+                    <Users className="w-5 h-5 text-brand-accent" />
                     <div>
-                      <div className="font-bold text-sm uppercase">Acceso Vitalicio</div>
+                      <div className="font-black text-sm uppercase tracking-tighter">Acceso Vitalicio</div>
                       <div className="text-zinc-500 text-xs">Sin límites</div>
                     </div>
                   </div>

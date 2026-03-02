@@ -1,18 +1,18 @@
 import NextAuth, { NextAuthOptions } from 'next-auth';
-import CognitoProvider from 'next-auth/providers/cognito';
+import GoogleProvider from 'next-auth/providers/google';
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
+  debug: true, // Habilitar logs detallados para depuración
   providers: [
-    CognitoProvider({
-      clientId: process.env.COGNITO_CLIENT_ID!,
-      clientSecret: process.env.COGNITO_CLIENT_SECRET!,
-      issuer: process.env.COGNITO_ISSUER!,
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
   callbacks: {
     async jwt({ token, account, profile, user }) {
-      // Mapear el sub de Cognito al id del usuario
+      // Mapear el sub de Google al id del usuario
       if (account && profile) {
         token.id = profile.sub as string;
       }

@@ -1,6 +1,13 @@
 import Stripe from 'stripe';
 import { StripeService as IStripeService } from '../domain/stripe.service';
 
+/**
+ * @deprecated Este servicio está deprecado.
+ * Stripe no está disponible en Chile, por lo que la aplicación ahora usa Mercado Pago.
+ * 
+ * Este código se mantiene para referencia histórica pero no debe ser usado en producción.
+ * Usa MercadoPagoServiceImpl en su lugar.
+ */
 export class StripeServiceImpl implements IStripeService {
   private stripe: Stripe;
 

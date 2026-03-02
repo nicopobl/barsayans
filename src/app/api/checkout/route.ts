@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { CreateCheckoutSessionUseCase } from '@/modules/subscriptions/application/create-checkout-session.use-case';
-import { StripeServiceImpl } from '@/modules/subscriptions/infrastructure/stripe.service';
+import { MercadoPagoServiceImpl } from '@/modules/subscriptions/infrastructure/mercadopago.service';
 import { MockCourseRepository } from '@/modules/courses/infrastructure/mock-course.repository';
 import { getCurrentUserId } from '@/lib/auth';
 
@@ -25,15 +25,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Inicializar dependencias
-    const stripeService = new StripeServiceImpl();
+    // Inicializar dependencias con Mercado Pago
+    const paymentService = new MercadoPagoServiceImpl();
     const courseRepository = new MockCourseRepository();
     const createCheckoutSessionUseCase = new CreateCheckoutSessionUseCase(
-      stripeService,
+      paymentService,
       courseRepository
     );
 
-    // Crear sesión de checkout
+    // Crear Preference de checkout en Mercado Pago
     const checkoutUrl = await createCheckoutSessionUseCase.execute(
       userId,
       courseId

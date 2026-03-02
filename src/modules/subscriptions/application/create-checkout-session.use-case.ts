@@ -1,9 +1,9 @@
-import { StripeService } from '../domain/stripe.service';
+import { PaymentService } from '../domain/payment.service';
 import { CourseRepository } from '@/modules/courses/domain/course.repository';
 
 export class CreateCheckoutSessionUseCase {
   constructor(
-    private stripeService: StripeService,
+    private paymentService: PaymentService,
     private courseRepository: CourseRepository
   ) {}
 
@@ -14,8 +14,8 @@ export class CreateCheckoutSessionUseCase {
       throw new Error(`Course with id ${courseId} not found`);
     }
 
-    // Crear sesión de checkout en Stripe
-    const checkoutUrl = await this.stripeService.createCheckoutSession(
+    // Crear sesión de checkout (Preference en Mercado Pago)
+    const checkoutUrl = await this.paymentService.createCheckoutSession(
       userId,
       courseId,
       course.price,
