@@ -22,9 +22,9 @@ variable "project_name" {
 }
 
 variable "allowed_origins" {
-  description = "List of allowed origins for CORS. Critical for Admin Panel and signed URLs. Should include localhost for QA."
+  description = "List of allowed origins for CORS. Critical for Admin Panel and signed URLs. Wildcard for QA to support dynamic origins (ngrok, tunnels, etc.)."
   type        = list(string)
-  default     = ["http://localhost:3000", "http://localhost:3001"]
+  default     = ["*"]
 }
 
 variable "suffix" {
