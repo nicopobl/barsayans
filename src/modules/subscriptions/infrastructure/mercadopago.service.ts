@@ -1,4 +1,4 @@
-import { MercadoPagoConfig, Preference } from 'mercadopago';
+import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 import { PaymentService } from '../domain/payment.service';
 import crypto from 'crypto';
 
@@ -12,6 +12,7 @@ import crypto from 'crypto';
 export class MercadoPagoServiceImpl implements PaymentService {
   private client: MercadoPagoConfig;
   private preference: Preference;
+  private payment: Payment;
 
   constructor() {
     const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
@@ -27,6 +28,11 @@ export class MercadoPagoServiceImpl implements PaymentService {
     });
 
     this.preference = new Preference(this.client);
+    this.payment = new Payment(this.client);
+  }
+
+  async getPayment(paymentId: string) {
+    return this.payment.get({ id: paymentId });
   }
 
   /**
@@ -50,18 +56,14 @@ export class MercadoPagoServiceImpl implements PaymentService {
     console.log(`[MercadoPago] Webhook configurado en: ${notificationUrl}`);
     console.log(`[MercadoPago] Base URL: ${baseUrl}`);
 
-    // Mercado Pago espera el precio como número decimal
-    // Si el precio viene en centavos (como en Stripe), dividir por 100
-    // Si ya viene en formato decimal, usar directamente
-    const priceInCLP = price >= 1000 ? price / 100 : price;
-
     const preferenceData = {
       items: [
         {
+          id: courseId,
           title: courseTitle || `Curso ${courseId}`,
           description: `Acceso completo al curso ${courseTitle || courseId}`,
           quantity: 1,
-          unit_price: priceInCLP,
+          unit_price: price,
           currency_id: 'CLP',
         },
       ],
@@ -104,36 +106,47 @@ export class MercadoPagoServiceImpl implements PaymentService {
    * @param signature Firma del webhook (x-signature header)
    * @returns Evento verificado de Mercado Pago
    */
-  constructEvent(payload: string | Buffer, signature: string): any {
+  constructEvent(payload: string | Buffer, signature: string, requestId?: string, dataId?: string): any {
     const webhookSecret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
     if (!webhookSecret) {
       throw new Error('MERCADOPAGO_WEBHOOK_SECRET environment variable is not set');
     }
 
-    // Mercado Pago envía la firma en formato: ts=timestamp,v1=hash
-    // Necesitamos extraer el hash y verificar
+    // MercadoPago firma un "manifest" compuesto por id, request-id y ts
+    // NO firma el body. Formato x-signature: ts=<timestamp>,v1=<hash>
     try {
-      // Parsear la firma
       const signatureParts = signature.split(',');
-      const signatureHash = signatureParts.find((part) => part.startsWith('v1='))?.split('=')[1];
-      
-      if (!signatureHash) {
+      const ts = signatureParts.find((p) => p.startsWith('ts='))?.split('=')[1];
+      const signatureHash = signatureParts.find((p) => p.startsWith('v1='))?.split('=')[1];
+
+      if (!ts || !signatureHash) {
         throw new Error('Invalid signature format');
       }
 
-      // Crear el hash esperado
-      const payloadString = typeof payload === 'string' ? payload : payload.toString();
+      // Construir el manifest según la documentación de MercadoPago:
+      // "id:<data.id>;request-id:<x-request-id>;ts:<ts>;"
+      const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`;
+
       const expectedHash = crypto
         .createHmac('sha256', webhookSecret)
-        .update(payloadString)
+        .update(manifest)
         .digest('hex');
 
-      // Comparar hashes
+      console.log('[MercadoPago Webhook Debug]', {
+        ts,
+        dataId,
+        requestId,
+        manifest,
+        receivedHash: signatureHash,
+        expectedHash,
+        secretPreview: webhookSecret.slice(0, 8) + '...',
+      });
+
       if (signatureHash !== expectedHash) {
         throw new Error('Invalid signature');
       }
 
-      // Si la firma es válida, parsear el payload
+      const payloadString = typeof payload === 'string' ? payload : payload.toString();
       return JSON.parse(payloadString);
     } catch (error) {
       console.error('Error verifying Mercado Pago webhook signature:', error);

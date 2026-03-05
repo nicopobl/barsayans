@@ -3,102 +3,64 @@ import { MercadoPagoServiceImpl } from '@/modules/subscriptions/infrastructure/m
 import { ProcessPaymentUseCase } from '@/modules/subscriptions/application/process-payment.use-case';
 import { FirestoreSubscriptionRepository } from '@/modules/subscriptions/infrastructure/firestore-subscription.repository';
 
-// Deshabilitar el body parser para poder obtener el rawBody
 export const runtime = 'nodejs';
 
 /**
  * Webhook handler para Mercado Pago
- * Mercado Pago envía notificaciones cuando cambia el estado de un pago
- * Tipos de eventos: payment, merchant_order, etc.
+ * En lugar de verificar la firma (que varía según el canal de notificación),
+ * usamos el payment ID para consultar la API de MP directamente.
+ * Este es el patrón recomendado por MercadoPago.
  */
 export async function POST(request: NextRequest) {
   try {
-    // Obtener el raw body para verificar la firma
-    const body = await request.text();
-    const signature = request.headers.get('x-signature');
-    const requestId = request.headers.get('x-request-id');
+    const url = new URL(request.url);
+    const topic = url.searchParams.get('topic') || url.searchParams.get('type');
 
-    if (!signature) {
-      return NextResponse.json(
-        { error: 'Missing x-signature header' },
-        { status: 400 }
-      );
+    // Ignorar notificaciones que no sean de pago
+    if (topic !== 'payment') {
+      return NextResponse.json({ received: true });
     }
 
-    // Inicializar servicios
+    const paymentId = url.searchParams.get('data.id') || url.searchParams.get('id');
+    if (!paymentId) {
+      return NextResponse.json({ error: 'Missing payment id' }, { status: 400 });
+    }
+
     const mercadoPagoService = new MercadoPagoServiceImpl();
     const subscriptionRepository = new FirestoreSubscriptionRepository();
-    const processPaymentUseCase = new ProcessPaymentUseCase(
-      subscriptionRepository
-    );
+    const processPaymentUseCase = new ProcessPaymentUseCase(subscriptionRepository);
 
-    // Verificar y construir el evento de Mercado Pago
-    let event;
-    try {
-      event = mercadoPagoService.constructEvent(body, signature);
-    } catch (error) {
-      console.error('Error verifying webhook signature:', error);
-      return NextResponse.json(
-        { error: 'Invalid signature' },
-        { status: 400 }
-      );
+    // Consultar el pago directamente en la API de MP para verificarlo
+    const payment = await mercadoPagoService.getPayment(paymentId);
+
+    console.log(`[MercadoPago Webhook] payment ${paymentId} status: ${payment.status}, external_reference: ${payment.external_reference}`);
+
+    if (payment.status !== 'approved' && payment.status !== 'authorized') {
+      return NextResponse.json({ received: true, status: 'not_approved' });
     }
 
-    // Mercado Pago envía diferentes tipos de notificaciones
-    // El tipo viene en el campo "type" del payload
-    // Tipos comunes: payment, merchant_order, subscription, etc.
-    const notificationType = event.type;
-
-    // Procesar notificaciones de pago
-    if (notificationType === 'payment') {
-      // Mercado Pago puede enviar el objeto completo o solo el ID
-      // Si viene solo el ID, necesitaríamos hacer una llamada a la API para obtener los detalles
-      // Por ahora, asumimos que viene el objeto completo en event.data
-      const payment = event.data || event;
-
-      // Verificar que el pago esté aprobado
-      if (payment.status === 'approved' || payment.status === 'authorized') {
-        // Mercado Pago almacena external_reference en el payment
-        // Este campo se establece cuando creamos la Preference con external_reference
-        const externalReference = payment.external_reference;
-
-        if (externalReference) {
-          // Si usamos external_reference, debe estar en formato: userId_courseId
-          const [userId, courseId] = externalReference.split('_');
-
-          if (!userId || !courseId) {
-            console.error('Invalid external_reference format');
-            return NextResponse.json(
-              { error: 'Invalid external_reference format' },
-              { status: 400 }
-            );
-          }
-
-          // Procesar el pago y crear la suscripción
-          await processPaymentUseCase.execute(userId, courseId);
-
-          return NextResponse.json({ received: true, status: 'processed' });
-        } else {
-          // Si no hay external_reference, intentar obtener de metadata de la preference
-          // Esto requeriría hacer una llamada adicional a la API de Mercado Pago
-          console.warn('No external_reference found, payment may need manual processing');
-          return NextResponse.json({ received: true, status: 'pending' });
-        }
-      } else {
-        // Pago no aprobado, solo confirmar recepción
-        console.log(`Payment ${payment.id} status: ${payment.status}`);
-        return NextResponse.json({ received: true, status: 'not_approved' });
-      }
+    const externalReference = payment.external_reference;
+    if (!externalReference) {
+      console.warn('[MercadoPago Webhook] No external_reference found');
+      return NextResponse.json({ received: true, status: 'no_reference' });
     }
 
-    // Otros tipos de notificaciones pueden ser manejados aquí
-    // Por ejemplo: merchant_order, subscription, etc.
-    return NextResponse.json({ received: true });
+    // external_reference tiene formato: userId_courseId
+    const underscoreIndex = externalReference.indexOf('_');
+    if (underscoreIndex === -1) {
+      console.error('[MercadoPago Webhook] Invalid external_reference format:', externalReference);
+      return NextResponse.json({ error: 'Invalid external_reference' }, { status: 400 });
+    }
+
+    const userId = externalReference.slice(0, underscoreIndex);
+    const courseId = externalReference.slice(underscoreIndex + 1);
+
+    await processPaymentUseCase.execute(userId, courseId);
+    console.log(`[MercadoPago Webhook] Suscripción creada: userId=${userId}, courseId=${courseId}`);
+
+    return NextResponse.json({ received: true, status: 'processed' });
   } catch (error) {
     console.error('Error processing Mercado Pago webhook:', error);
-    return NextResponse.json(
-      { error: 'Webhook processing failed' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 });
   }
 }
