@@ -18,3 +18,9 @@ variable "project_name" {
   type        = string
   default     = "barsayans"
 }
+
+variable "suffix" {
+  description = "Suffix for bucket name uniqueness"
+  type        = string
+  default     = "final"
+}

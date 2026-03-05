@@ -15,6 +15,7 @@ export class FirestoreSubscriptionRepository implements SubscriptionRepository {
   constructor() {
     const config: any = {
       projectId: process.env.GCP_PROJECT_ID,
+      ...(process.env.FIRESTORE_DATABASE_ID && { databaseId: process.env.FIRESTORE_DATABASE_ID }),
     };
 
     // Prioridad: keyFilename > GCP_CREDENTIALS > Application Default Credentials
@@ -66,10 +67,19 @@ export class FirestoreSubscriptionRepository implements SubscriptionRepository {
     courseId: string
   ): Promise<Subscription | null> {
     const documentId = this.generateDocumentId(userId, courseId);
-    const doc = await this.firestore
-      .collection(this.collectionName)
-      .doc(documentId)
-      .get();
+
+    let doc;
+    try {
+      doc = await this.firestore
+        .collection(this.collectionName)
+        .doc(documentId)
+        .get();
+    } catch (err: any) {
+      // gRPC NOT_FOUND (code 5): the Firestore collection doesn't exist yet
+      // (no document has ever been written to it). Treat as no subscription.
+      if (err?.code === 5) return null;
+      throw err;
+    }
 
     if (!doc.exists) {
       return null;

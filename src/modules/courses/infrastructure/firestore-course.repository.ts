@@ -9,6 +9,7 @@ export class FirestoreCourseRepository implements CourseRepository {
   constructor() {
     const config: ConstructorParameters<typeof Firestore>[0] = {
       projectId: process.env.GCP_PROJECT_ID,
+      ...(process.env.FIRESTORE_DATABASE_ID && { databaseId: process.env.FIRESTORE_DATABASE_ID }),
     };
 
     if (process.env.GCP_SERVICE_ACCOUNT_KEY) {
@@ -28,19 +29,21 @@ export class FirestoreCourseRepository implements CourseRepository {
       return [];
     }
 
-    return snapshot.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        id: data.id,
-        title: data.title,
-        description: data.description,
-        price: data.price,
-        thumbnail: data.thumbnail,
-        level: data.level,
-        videoUrl: data.videoUrl,
-        videoKey: data.videoKey,
-      };
-    });
+    return snapshot.docs
+      .filter((doc) => !doc.id.startsWith('_')) // exclude Terraform seed documents
+      .map((doc) => {
+        const data = doc.data();
+        return {
+          id: data.id,
+          title: data.title,
+          description: data.description,
+          price: data.price,
+          thumbnail: data.thumbnail,
+          level: data.level,
+          videoUrl: data.videoUrl,
+          videoKey: data.videoKey,
+        };
+      });
   }
 
   async getById(id: string): Promise<Course | null> {

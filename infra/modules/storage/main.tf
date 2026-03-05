@@ -2,7 +2,7 @@
 # Creates a GCS bucket for storing Barsayans Academy videos with CORS configuration
 
 resource "google_storage_bucket" "videos" {
-  name          = "${var.project_name}-${var.environment}-videos-${var.suffix}"
+  name          = "${var.project_name}-videos-${var.suffix}"
   location      = var.region
   force_destroy = var.environment == "qa" ? true : false # Allow force destroy in QA for testing
 

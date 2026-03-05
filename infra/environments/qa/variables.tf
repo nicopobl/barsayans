@@ -1,6 +1,7 @@
 variable "gcp_project_id" {
   description = "GCP Project ID (must match GCP_PROJECT_ID in ENV_SETUP.md)"
   type        = string
+  default     = "barsayans-gym"
 }
 
 variable "region" {

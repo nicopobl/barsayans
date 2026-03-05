@@ -16,7 +16,17 @@ output "firestore_database_location" {
   value       = module.database.firestore_database_location
 }
 
-output "firestore_collection_name" {
-  description = "Firestore Collection Name for subscriptions - Use this value for FIRESTORE_SUBSCRIPTIONS_COLLECTION in .env.local (default: 'subscriptions')"
+output "firestore_database_id" {
+  description = "Firestore Database ID — use as FIRESTORE_DATABASE_ID in .env.local"
+  value       = module.database.firestore_database_id
+}
+
+output "firestore_subscriptions_collection" {
+  description = "Subscriptions collection name — use as FIRESTORE_SUBSCRIPTIONS_COLLECTION in .env.local"
   value       = "subscriptions"
+}
+
+output "firestore_courses_collection" {
+  description = "Courses collection name — use as FIRESTORE_COURSES_COLLECTION in .env.local"
+  value       = "courses"
 }
