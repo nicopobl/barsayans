@@ -2,7 +2,7 @@ import { getCurrentUser } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Plus, Edit, Video, DollarSign } from 'lucide-react';
-import { DynamoDBCourseRepository } from '@/modules/courses/infrastructure/dynamodb-course.repository';
+import { FirestoreCourseRepository } from '@/modules/courses/infrastructure/firestore-course.repository';
 
 async function verifyAdmin() {
   const user = await getCurrentUser();
@@ -19,7 +19,7 @@ export default async function AdminDashboard() {
     redirect('/auth/unauthorized');
   }
 
-  const courseRepository = new DynamoDBCourseRepository();
+  const courseRepository = new FirestoreCourseRepository();
   const courses = await courseRepository.getAll();
 
   return (

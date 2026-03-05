@@ -109,7 +109,7 @@ export default function NewCoursePage() {
         xhr.open('PUT', url);
         xhr.setRequestHeader('Content-Type', formData.videoFile.type);
         xhr.send(formData.videoFile);
-      }).then(() => {
+      }).then(async () => {
 
       // Actualizar el curso con el videoKey
       await fetch('/api/admin/courses', {
